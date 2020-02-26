@@ -113,3 +113,9 @@ Q2Q0b1==
 
 ***输出***
 `Ba5e_64OFive`
+
+### pyc离线反编译 ###
+
+[源地址](https://github.com/rocky/python-uncompyle6/)
+
+`uncompyle6 *.pyc > *.py`
