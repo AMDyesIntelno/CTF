@@ -124,6 +124,8 @@ Q2Q0b1==
 
 [原文地址](https://www.xctf.org.cn/library/details/8723e039db0164e2f7345a12d2edd2a5e800adf7/)
 
+[具体参考](https://wenku.baidu.com/view/6e84cad459eef8c75ebfb3b5.html)
+
 ```python
 # -*- coding: utf-8 -*
 
