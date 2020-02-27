@@ -54,3 +54,20 @@ a.png位于cloacked-pixel文件夹中
 
 	multimon解码
 	multimon -t raw -a AFSK1200 a.raw
+
+### dd分割和cat合并 ###
+dd的作用是转换和拷贝文件，我们可以利用它来分割文件，相关的选项如下：
+
+if=filename：输入的文件名
+
+of=finename：输出的文件名
+
+bs=bytes：一次读写的字节数，默认是512bytes(做题时通常设置成1)
+
+skip=blocks:拷贝前，跳过的输入文件的前blocks块，块的大小有bs决定(主要由binwalk的分析结果决定)
+
+`dd if=filein of=fileout bs=1 skip=12345`
+
+用cat将两个文件合并
+
+`cat file1 file2 > file3`
