@@ -1,5 +1,6 @@
 # 对Misc题的总结与记录 #
 
+![mindmap](https://github.com/AMDyesIntelno/CTF/blob/master/Images/mindmap.png)
 
 ### pyc离线反编译 ###
 
