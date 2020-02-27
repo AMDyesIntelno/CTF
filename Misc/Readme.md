@@ -28,3 +28,11 @@
 `python lsb.py extract a.png out keyword(秘钥)`
 
 a.png位于cloacked-pixel文件夹中
+
+### 一种用于在Python字节码中嵌入Payload的隐写工具 – Stegosaurus ###
+
+[源地址](https://bitbucket.org/jherron/stegosaurus/src)
+
+用法：`python3 Stegosaurus.py -x *.pyc`
+
+[参考链接](https://www.freebuf.com/sectool/129357.html)
