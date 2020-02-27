@@ -36,3 +36,20 @@ a.png位于cloacked-pixel文件夹中
 用法：`python3 Stegosaurus.py -x *.pyc`
 
 [参考链接](https://www.freebuf.com/sectool/129357.html)
+
+
+### 音频类隐写 ###
+
+1.使用Audacity进行分析，多留意频谱图以及音频的开头和结尾是否存在杂音
+
+2.使用multimon-ng来解码
+
+	例题：bsidessf-ctf-2017 latlong
+	得到一个 wav 文件，用 soxi 查看音频文件的格式
+	soxi *.wav
+	
+	将 wav 文件转换成 raw 文件
+	sox -t wav *.wav -esigned-integer -b16 -r 22050 -t raw out.raw
+
+	multimon解码
+	multimon -t raw -a AFSK1200 a.raw
