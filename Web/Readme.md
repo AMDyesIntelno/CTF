@@ -92,3 +92,26 @@ ascii: 'or'6É]é!r,ùíb
 	echo $x->readfile();
 ?>
 ```
+
+查看shield.php源代码
+```
+<?php
+	//flag is in pctf.php
+	class Shield {
+		public $file;
+		function __construct($filename = '') {
+			$this -> file = $filename;
+		}
+		
+		function readfile() {
+			if (!empty($this->file) && stripos($this->file,'..')===FALSE  
+			&& stripos($this->file,'/')===FALSE && stripos($this->file,'\\')==FALSE) {
+				return @file_get_contents($this->file);
+			}
+		}
+	}
+?>
+```
+显然存在反序列化漏洞
+
+利用反序列化漏洞构造payload去读取pctf.php
