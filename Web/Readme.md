@@ -56,7 +56,7 @@ ascii: 'or'6É]é!r,ùíb
 
 尝试对showimg.php进行读取，构造payload
 
-`view-source:http://web.jarvisoj.com:32768/showimg.php?img=c2hvd2ltZy5waHA=`
+`http://web.jarvisoj.com:32768/showimg.php?img=c2hvd2ltZy5waHA=`
 
 得到空白页面，查看源代码
 
