@@ -74,3 +74,21 @@ ascii: 'or'6É]é!r,ùíb
 	}
 ?>
 ```
+
+限制了对上级目录以及pctf的直接读取，尝试读取index.php，构造payload
+
+`http://web.jarvisoj.com:32768/showimg.php?img=aW5kZXgucGhw`
+
+查看源代码
+
+```
+<?php 
+	require_once('shield.php');
+	$x = new Shield();
+	isset($_GET['class']) && $g = $_GET['class'];
+	if (!empty($g)) {
+		$x = unserialize($g);
+	}
+	echo $x->readfile();
+?>
+```
