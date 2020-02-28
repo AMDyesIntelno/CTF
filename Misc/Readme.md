@@ -76,3 +76,8 @@ skip=blocks:拷贝前，跳过的输入文件的前blocks块，块的大小有bs
 [在线扫描](https://online-barcode-reader.inliteresearch.com/)
 
 ![](https://github.com/AMDyesIntelno/CTF/blob/master/Images/%E6%B7%B1%E5%BA%A6%E6%88%AA%E5%9B%BE_%E9%80%89%E6%8B%A9%E5%8C%BA%E5%9F%9F_20200227222756.png)
+
+### 数字密码表 ###
+安恒11月月赛
+
+![](https://github.com/AMDyesIntelno/CTF/blob/master/Images/%E6%95%B0%E5%AD%97%E5%AF%86%E7%A0%81%E8%A1%A8.png)
