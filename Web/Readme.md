@@ -46,7 +46,7 @@ md5: 276f722736c95d99e921722cf9ed621c
 ascii: 'or'6É]é!r,ùíb
 ```
 
-### 神盾局的秘密 ###
+### php反序列化 ###
 
 [例题:JarvisOJ 神盾局的秘密](http://web.jarvisoj.com:32768/)
 
@@ -115,9 +115,10 @@ ascii: 'or'6É]é!r,ùíb
 
 利用反序列化构造payload去读取pctf.php
 
-对象（object）通常被序列化为：
-
+>对象（object）通常被序列化为：
 `O:<length>:"<class name>":<n>:{<field name 1><field value 1><field name 2><field value 2>...<field name n><field value n>}`
+
+[参考文章](http://www.neatstudio.com/show-161-1.shtml)
 
 因此在构造payload时要写上file name 和 value
 
