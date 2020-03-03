@@ -172,3 +172,74 @@ for i in *;
 
 [identify -format 各个参数具体意义](https://www.imagemagick.org/script/escape.php)(主要使用的有%s,%c,%T)
 
+### 培根密码 ###
+
+常见的培根加密方式有
+
+1. 一段正常的文本，调整单词中的字母的大小写，将明文隐藏在大小写中，在解密时，把大写字母当做'A',把小写字母当做'B'(或者把大写字母当做'B',把小写字母当做'A')
+2. 一段正常的文本，调整单词中的字母的字体样式
+
+	[培根密码-维基百科-例子](https://zh.wikipedia.org/wiki/%E5%9F%B9%E6%A0%B9%E5%AF%86%E7%A2%BC)
+
+   >以下一段包含了'steganography'，正常字体是A，粗体是B：
+	>**T**o en**co**de **a** mes**s**age e**ac**h letter **of** the **pl**a**i**nt**ex**t **i**s replaced b**y** **a** **g**rou**p** **of** **f**i**ve** of **th**e lett**ers** **'A'** o**r** **'B'**.
+
+密码表一
+
+|char|cipher|char|cipher|char|cipher|char|cipher|
+|---|---|---|---|---|---|---|---|
+|a|AAAAA|g|AABBA|n|ABBAA|t|BAABA|
+|b|AAAAB|h|AABBB|o|ABBAB|u-v|BAABB|
+|c|AAABA|i-j|ABAAA|p|ABBBA|w|BABAA|
+|d|AAABB|k|ABAAB|q|ABBBB|x|BABAB|
+|e|AABAA|l|ABABA|r|BAAAA|y|BABBA|
+|f|AABAB|m|ABABB|s|BAAAB|z|BABBB|
+
+密码表二
+
+|char|cipher|char|cipher|char|cipher|char|cipher|
+|---|---|---|---|---|---|---|---|
+|A|aaaaa|H|aabbb|O|abbba|V|babab|
+|B|aaaab|I|abaaa|P|abbbb|W|babba|
+|C|aaaba|J|abaab|Q|baaaa|X|babbb|
+|D|aaabb|K|ababa|R|baaab|Y|bbaaa|
+|E|aabaa|L|ababb|S|baaba|Z|bbaab|
+|F|aabab|M|abbaa|T|baabb|
+|G|aabba|N|abbab|U|babaa|
+
+[例题:JarvisOJ 爱吃培根的出题人](https://www.jarvisoj.com/challenges)
+
+加密方式为第一个
+
+解密脚本
+
+```python
+cipher='AAAABAAAAAAAABAABBABABBAAABAAABAAABABBAAABBABBAABAAABABABBABABBABAAABB'
+L=[]
+for i in range(len(cipher)/5):
+    L.append(cipher[:5])
+    cipher=cipher[5:]
+
+dir1 = {'aaaaa':'A','aaaab':'B','aaaba':'C','aaabb':'D','aabaa':'E','aabab':'F','aabba':'G','aabbb':'H','abaaa':'I',
+        'abaab':'J','ababa':'K','ababb':'L','abbaa':'M','abbab':'N','abbba':'O','abbbb':'P','baaaa':'Q','baaab':'R',
+        'baaba':'S','baabb':'T','babaa':'U','babab':'V','babba':'W','babbb':'X','bbaaa':'Y','bbaab':'Z'}
+
+dir2 = {'AAAAA':'a','AABBA':'g','ABBAA':'n','BAABA':'t','AAAAB':'b','AABBB':'h','ABBAB':'o','BAABB':'u/v',
+        'AAABA':'c','ABAAA':'i/j','ABBBA':'p','BABAA':'w','AAABB':'d','ABAAB':'k','ABBBB':'q','BABAB':'x',
+        'AABAA':'e','ABABA':'l','BAAAA':'r','BABBA':'y','AABAB':'f','ABABB':'m','BAAAB':'s','BABBB':'z'}
+flag1=''
+flag2=''
+
+for i in L:
+    flag1+=str(dir1.get(i.lower()))
+    flag2+=str(dir2.get(i.upper()))
+
+print "flag1:%s"%flag1
+print "flag2:%s"%flag2
+```
+
+Out
+```
+flag1:BACNMIRMNSFNND
+flag2:baconi/jsnotfood
+```
