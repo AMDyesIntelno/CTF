@@ -243,3 +243,14 @@ Out
 flag1:BACNMIRMNSFNND
 flag2:baconi/jsnotfood
 ```
+
+### steghide ###
+[ectf-2014-Pixel-Princess](https://adworld.xctf.org.cn/task/answer?type=misc&number=1&grade=1&id=4790&page=7)
+
+![](../Images/ectf-2014-Pixel-Princess.jpg)
+
+对图片分离提取后，得到密码 `BaD_DR4G0N`
+
+对原图使用 `steghide` 分离，得到flag
+
+```steghide extract -sf 00000000.jpg -p BaD_DR4G0N```
