@@ -1,6 +1,6 @@
 # 对Misc题的总结与记录 #
 
-![mindmap](https://github.com/AMDyesIntelno/CTF/blob/master/Images/mindmap.png)
+![mindmap](../Images/mindmap.png)
 
 ### pyc离线反编译 ###
 
@@ -18,7 +18,7 @@
 
 ***Sample***
 
-![](https://github.com/AMDyesIntelno/CTF/blob/master/Images/%E6%B7%B1%E5%BA%A6%E6%88%AA%E5%9B%BE_%E9%80%89%E6%8B%A9%E5%8C%BA%E5%9F%9F_20200227115918.png)
+![](../Images/%E6%B7%B1%E5%BA%A6%E6%88%AA%E5%9B%BE_%E9%80%89%E6%8B%A9%E5%8C%BA%E5%9F%9F_20200227115918.png)
 
 ### 利用cloacked-pixel进行LSB隐写提取 ###
 
@@ -75,19 +75,19 @@ skip=blocks:拷贝前，跳过的输入文件的前blocks块，块的大小有bs
 ### 二维码&条形码&PDF417 ###
 [在线扫描](https://online-barcode-reader.inliteresearch.com/)
 
-![](https://github.com/AMDyesIntelno/CTF/blob/master/Images/%E6%B7%B1%E5%BA%A6%E6%88%AA%E5%9B%BE_%E9%80%89%E6%8B%A9%E5%8C%BA%E5%9F%9F_20200227222756.png)
+![](../Images/%E6%B7%B1%E5%BA%A6%E6%88%AA%E5%9B%BE_%E9%80%89%E6%8B%A9%E5%8C%BA%E5%9F%9F_20200227222756.png)
 
 ### 数字密码表 ###
 
 安恒11月月赛
 
-![](https://github.com/AMDyesIntelno/CTF/blob/master/Images/%E6%95%B0%E5%AD%97%E5%AF%86%E7%A0%81%E8%A1%A8.png)
+![](../Images/%E6%95%B0%E5%AD%97%E5%AF%86%E7%A0%81%E8%A1%A8.png)
 
 ### 元数据 ###
 
 [攻防世界 Mysterious-GIF(breakin-ctf-2017)](https://adworld.xctf.org.cn/task/answer?type=misc&number=1&grade=1&id=5557&page=5)
 
-![](https://github.com/AMDyesIntelno/CTF/blob/master/Images/breakin-ctf-2017-Mysterious-GIF.gif)
+![](../Images/breakin-ctf-2017-Mysterious-GIF.gif)
 
 ```
 binwalk a.gif 
@@ -103,6 +103,12 @@ DECIMAL       HEXADECIMAL     DESCRIPTION
 将压缩包从`gif`中分离，将`temp.zip`解压，得到共265个enc文件，enc文件大小为256字节，这是使用rsa公钥加密文件时创建的加密文件的大小。
 
 现在要从`gif`文件中找到私钥来进行解密
+
+使用identify前要安装imagemagick
+
+```
+sudo apt-get install imagemagick
+```
 
 ```
 identify -format "%c" a.gif
@@ -168,7 +174,7 @@ for i in *;
 
 发现`out`是jpg文件，打开即可得到flag
 
-![](https://github.com/AMDyesIntelno/CTF/blob/master/Images/breakin-ctf-2017-Mysterious-GIF-ans.jpg)
+![](../Images/breakin-ctf-2017-Mysterious-GIF-ans.jpg)
 
 [identify -format 各个参数具体意义](https://www.imagemagick.org/script/escape.php)(主要使用的有%s,%c,%T)
 
@@ -254,3 +260,20 @@ flag2:baconi/jsnotfood
 对原图使用 `steghide` 分离，得到flag
 
 ```steghide extract -sf 00000000.jpg -p BaD_DR4G0N```
+
+### zip伪加密 ###
+
+![](../Images/zip数据区.png)
+![](../Images/zip目录区.png)
+
+当zip文件没有加密时,两处的标记均为`00 00`
+
+![](../Images/zip加密标记处.png)
+
+当zip文件被加密时,两处的标记会发生改变,多为`09 00`
+
+![](../Images/zip真加密.png)
+
+当zip文件的全局方式位标记被修改为`01 00`或`09 00`时,会被压缩软件认为是被加密,达到了伪加密的目的
+
+![](../Images/zip伪加密.png)
