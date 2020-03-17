@@ -44,5 +44,11 @@
     4. memdump
 
     将进程中的所有内存驻留页面提取到单个文件中
+    
+    `volatility -f mem.vmem --profile=WinXPSP2x86 memdump -p [PID] -D [dump 出的文件保存的目录]`
+    
+    或者
 
     `volatility -f mem.vmem --profile=WinXPSP2x86 memdump -p 2012 --dump-dir ~/suspicion/out`
+    
+    (`-D DUMP_DIR, --dump-dir=DUMP_DIR`)
